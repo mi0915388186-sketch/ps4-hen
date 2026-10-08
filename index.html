@@ -1,1 +1,281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PS4 HOST 14.00</title>
 
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background: #0d111b;
+    color: #f4f7ff;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+}
+
+header {
+    text-align: center;
+    padding: 20px 0;
+}
+
+h1 {
+    color: #59a5ff;
+    font-size: 34px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #aab7ca;
+}
+
+.panel {
+    background: #192232;
+    border: 1px solid #33445e;
+    border-radius: 14px;
+    padding: 20px;
+    margin: 18px 0;
+}
+
+h2 {
+    font-size: 20px;
+    margin-top: 0;
+}
+
+button {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-radius: 9px;
+    padding: 14px;
+    margin-top: 12px;
+    background: #2879ec;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1761c8;
+}
+
+button.secondary {
+    background: #344157;
+}
+
+.status {
+    padding: 12px;
+    background: #111927;
+    border-radius: 8px;
+    color: #8de3b0;
+    overflow-wrap: anywhere;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid #52637c;
+    background: #101723;
+    color: white;
+    font-size: 15px;
+    direction: ltr;
+}
+
+#result {
+    margin-top: 15px;
+    color: #a8d0ff;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.warning {
+    border: 1px solid #8b682f;
+    background: #302719;
+    color: #ffdc96;
+    padding: 15px;
+    border-radius: 10px;
+    line-height: 1.8;
+}
+
+footer {
+    text-align: center;
+    color: #8492a6;
+    font-size: 13px;
+    margin: 25px 0;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+    <h1>PS4 HOST</h1>
+    <div class="subtitle">واجهة مشروع — PS4 Firmware 14.00</div>
+</header>
+
+<section class="panel">
+    <h2>حالة الهوست</h2>
+    <div class="status" id="status">
+        الصفحة جاهزة
+    </div>
+
+    <button onclick="checkPage()">
+        فحص الصفحة
+    </button>
+
+    <button class="secondary" onclick="checkFiles()">
+        فحص ملفات المشروع
+    </button>
+
+    <div id="result" aria-live="polite"></div>
+</section>
+
+<section class="panel">
+    <h2>ربط ملفات المستودع</h2>
+
+    <label for="baseUrl">رابط المجلد الذي يحتوي على الملفات:</label>
+
+    <input
+        id="baseUrl"
+        type="url"
+        placeholder="https://example.github.io/ps4-host/"
+    >
+
+    <label for="fileName">اسم الملف المراد التحقق من وجوده:</label>
+
+    <input
+        id="fileName"
+        type="text"
+        placeholder="README.md"
+    >
+
+    <button onclick="checkRemoteFile()">
+        التحقق من الملف
+    </button>
+
+    <div id="fileResult" aria-live="polite"></div>
+</section>
+
+<section class="panel">
+    <h2>الملفات المرتبطة بالصفحة</h2>
+    <p>ملف التنسيق: <code>style.css</code></p>
+    <p>ملف JavaScript: <code>script.js</code></p>
+    <p>الملفات الأخرى: استخدم مسارات المستودع الصحيحة.</p>
+</section>
+
+<section class="warning">
+    <strong>تنبيه:</strong>
+    هذه الصفحة تفحص تحميل الملفات فقط. لا تحتوي على استغلال
+    أو HEN، ولا يمكنها تفعيل تهكير PS4 14.00 وحدها.
+    لا تربط ملفات مجهولة أو ملفات مخصصة لإصدارات مختلفة.
+</section>
+
+<footer>
+    PS4 HOST TEMPLATE — Version 1.0
+</footer>
+
+</div>
+
+<script>
+"use strict";
+
+function checkPage() {
+    document.getElementById("status").textContent =
+        "HTML وJavaScript يعملان";
+
+    document.getElementById("result").textContent =
+        "تم تحميل واجهة الصفحة. لم يتم تشغيل أي استغلال.";
+}
+
+async function checkFiles() {
+    const result = document.getElementById("result");
+
+    result.textContent = "جارٍ فحص ملفات الواجهة...";
+
+    const files = ["style.css", "script.js"];
+    const messages = [];
+
+    for (const file of files) {
+        try {
+            const response = await fetch("./" + file, {
+                method: "HEAD",
+                cache: "no-store"
+            });
+
+            messages.push(
+                file + ": " +
+                (response.ok
+                    ? "متاح"
+                    : "لم يتم العثور عليه أو تعذّر الوصول إليه")
+            );
+        } catch (error) {
+            messages.push(
+                file + ": تعذّر الفحص من المتصفح"
+            );
+        }
+    }
+
+    result.textContent = messages.join(" | ");
+}
+
+async function checkRemoteFile() {
+    const base = document.getElementById("baseUrl").value.trim();
+    const name = document.getElementById("fileName").value.trim();
+    const output = document.getElementById("fileResult");
+
+    if (!base || !name) {
+        output.textContent = "أدخل رابط المجلد واسم الملف.";
+        return;
+    }
+
+    try {
+        const root = new URL(base);
+
+        if (root.protocol !== "https:") {
+            output.textContent =
+                "استخدم رابط HTTPS موثوقًا.";
+            return;
+        }
+
+        const target = new URL(
+            name.replace(/^\/+/, ""),
+            root.href.endsWith("/") ? root.href : root.href + "/"
+        );
+
+        if (target.origin !== root.origin) {
+            output.textContent =
+                "يجب أن يكون الملف على النطاق نفسه.";
+            return;
+        }
+
+        output.textContent = "جارٍ التحقق من الملف...";
+
+        const response = await fetch(target.href, {
+            method: "HEAD",
+            cache: "no-store"
+        });
+
+        output.textContent = response.ok
+            ? "الملف متاح على الرابط: " + target.href
+            : "لم ينجح التحقق. تأكد من اسم الملف وإعدادات الاستضافة.";
+    } catch (error) {
+        output.textContent =
+            "تعذّر التحقق من الرابط. راجع العنوان وإعدادات الاستضافة.";
+    }
+}
+</script>
+
+</body>
+</html>
